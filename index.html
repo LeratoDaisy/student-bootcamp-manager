@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Student Bootcamp Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+
+    <!-- Sidebar navigation -->
+    <aside class="sidebar">
+      <div class="brand">Student Bootcamp Manager</div>
+
+      <nav class="nav" aria-label="Main">
+        <a class="nav-link" href="#dashboard" data-view="dashboard">Dashboard</a>
+        <a class="nav-link" href="#register" data-view="register">Register student</a>
+        <a class="nav-link" href="#students" data-view="students">Students <span class="nav-count" id="nav-count">0</span></a>
+        <a class="nav-link" href="#report" data-view="report">Final report</a>
+        <a class="nav-link" href="#activity" data-view="activity">Activity log</a>
+        <a class="nav-link" href="#lab" data-view="lab">Module 4 lab</a>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div>Passing mark: <strong id="side-passmark">50%</strong></div>
+        <div>Version <span id="side-version">1.0.0</span></div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+
+      <!-- Dashboard -->
+      <section class="view" id="view-dashboard" hidden>
+        <header class="page-header">
+          <div>
+            <h1>Dashboard</h1>
+            <p class="lede">A quick look at how the class is doing.</p>
+          </div>
+          <div class="page-actions">
+            <a class="btn" href="#register">Register student</a>
+            <button class="btn btn-primary" type="button" data-action="process-all">Process all students</button>
+          </div>
+        </header>
+
+        <div class="stats" role="group" aria-label="Class totals">
+          <div class="stat">
+            <span class="stat-value" id="stat-total">0</span>
+            <span class="stat-label">Total students</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="stat-processed">0</span>
+            <span class="stat-label">Processed</span>
+          </div>
+          <div class="stat stat-pass">
+            <span class="stat-value" id="stat-passed">0</span>
+            <span class="stat-label">Passed</span>
+          </div>
+          <div class="stat stat-fail">
+            <span class="stat-value" id="stat-failed">0</span>
+            <span class="stat-label">Failed</span>
+          </div>
+        </div>
+
+        <div class="progress" aria-live="polite">
+          <div class="progress-text" id="progress-label">0 of 0 students processed</div>
+          <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+        </div>
+
+        <div class="split">
+          <section class="panel">
+            <h2>Class summary</h2>
+            <dl class="insights">
+              <div><dt>Class average</dt><dd id="insight-average">-</dd></div>
+              <div><dt>Top student</dt><dd id="insight-top">-</dd></div>
+              <div><dt>Highest mark</dt><dd id="insight-high">-</dd></div>
+              <div><dt>Lowest mark</dt><dd id="insight-low">-</dd></div>
+            </dl>
+          </section>
+
+          <section class="panel">
+            <h2>Passing mark</h2>
+            <p class="hint">A student passes when their average is at least this mark. Changing it updates every status.</p>
+            <form id="passmark-form" class="inline-form">
+              <label class="sr-only" for="passmark-input">Passing mark</label>
+              <input id="passmark-input" type="number" min="0" max="100" step="1" value="50" required>
+              <button class="btn" type="submit">Save</button>
+            </form>
+          </section>
+        </div>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Recent activity</h2>
+            <a class="text-link" href="#activity">See all</a>
+          </div>
+          <ul class="activity-list compact" id="recent-activity"></ul>
+        </section>
+      </section>
+
+      <!-- Register -->
+      <section class="view" id="view-register" hidden>
+        <header class="page-header">
+          <div>
+            <h1>Register a student</h1>
+            <p class="lede">Enter the student's details. Their ID is created for you.</p>
+          </div>
+        </header>
+
+        <div class="split split-wide">
+          <form class="panel form" id="register-form" novalidate>
+            <div class="field">
+              <label for="reg-name">Full name</label>
+              <input id="reg-name" type="text" autocomplete="off" placeholder="e.g. Naledi Khumalo" required>
+            </div>
+
+            <div class="field">
+              <label for="reg-course">Course</label>
+              <input id="reg-course" type="text" list="course-options" autocomplete="off" placeholder="Leave blank for the default course">
+              <datalist id="course-options"></datalist>
+            </div>
+
+            <div class="field">
+              <label for="reg-marks">Marks</label>
+              <input id="reg-marks" type="text" autocomplete="off" placeholder="e.g. 72, 65, 88">
+              <span class="hint">Separate marks with commas or spaces. Each mark must be from 0 to 100. You can enter as many as you like.</span>
+            </div>
+
+            <p class="form-error" id="form-error" role="alert"></p>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Register student</button>
+              <button class="btn" type="reset">Clear</button>
+            </div>
+          </form>
+
+          <aside class="panel note">
+            <h2>Good to know</h2>
+            <p>New students show up on the <a class="text-link" href="#students">Students</a> page with their average and PASS or FAIL already worked out.</p>
+            <p>Use the Process button there to run a student through processing. It takes a moment, then the student is marked as done.</p>
+            <p class="hint">If you leave the course blank, the student gets the default course. A student with no marks can be registered but can't be processed until they have marks.</p>
+          </aside>
+        </div>
+      </section>
+
+      <!-- Students -->
+      <section class="view" id="view-students" hidden>
+        <header class="page-header">
+          <div>
+            <h1>Students</h1>
+            <p class="lede" id="result-count">Showing 0 of 0 students</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn" type="button" id="btn-reset">Reset demo data</button>
+            <button class="btn btn-primary" type="button" data-action="process-all">Process all students</button>
+          </div>
+        </header>
+
+        <div class="toolbar">
+          <div class="field grow">
+            <label class="sr-only" for="student-search">Search students</label>
+            <input id="student-search" type="search" placeholder="Search by name or ID">
+          </div>
+          <div class="field">
+            <label class="sr-only" for="course-filter">Filter by course</label>
+            <select id="course-filter"></select>
+          </div>
+          <div class="field">
+            <label class="sr-only" for="status-filter">Filter by status</label>
+            <select id="status-filter">
+              <option value="all">All statuses</option>
+              <option value="pass">Passed</option>
+              <option value="fail">Failed</option>
+              <option value="pending">Not processed yet</option>
+              <option value="processed">Processed</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="sr-only" for="sort-select">Sort students</label>
+            <select id="sort-select">
+              <option value="id">Sort by ID</option>
+              <option value="name">Sort by name</option>
+              <option value="average">Sort by average</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Student</th>
+                <th scope="col">Course</th>
+                <th scope="col">Marks</th>
+                <th scope="col" class="num">Average</th>
+                <th scope="col">Status</th>
+                <th scope="col">Processing</th>
+              </tr>
+            </thead>
+            <tbody id="students-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Report -->
+      <section class="view" id="view-report" hidden>
+        <header class="page-header no-print">
+          <div>
+            <h1>Final report</h1>
+            <p class="lede">Print it or save it as a PDF from the print dialog.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn" type="button" id="btn-console">Print to console</button>
+            <button class="btn btn-primary" type="button" id="btn-print">Print report</button>
+          </div>
+        </header>
+
+        <article class="sheet">
+          <header class="sheet-head">
+            <h2 id="report-heading">Final Report</h2>
+            <p id="report-meta" class="hint"></p>
+          </header>
+
+          <div class="sheet-summary" id="report-summary"></div>
+
+          <div class="table-wrap flat">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Student</th>
+                  <th scope="col">Course</th>
+                  <th scope="col">Marks</th>
+                  <th scope="col" class="num">Average</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody id="report-body"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- Activity log -->
+      <section class="view" id="view-activity" hidden>
+        <header class="page-header">
+          <div>
+            <h1>Activity log</h1>
+            <p class="lede">Everything that happens, in the order it happens. Delayed messages show up after the lines that were written after them.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn" type="button" id="btn-clear-log">Clear log</button>
+          </div>
+        </header>
+        <section class="panel log-panel">
+          <ol class="activity-list" id="activity-list"></ol>
+        </section>
+      </section>
+
+      <!-- Module 4 lab -->
+      <section class="view" id="view-lab" hidden>
+        <header class="page-header">
+          <div>
+            <h1>Module 4 lab</h1>
+            <p class="lede">Try each concept and see what it does. Useful for your presentation.</p>
+          </div>
+        </header>
+
+        <div class="lab-grid">
+          <section class="panel demo">
+            <h2>Closure</h2>
+            <p class="hint">The processing counter remembers its count, but nothing outside it can change it.</p>
+            <button class="btn" type="button" data-demo="closure">Check the counter</button>
+            <pre class="output" id="out-closure" aria-live="polite">Press the button to run.</pre>
+          </section>
+
+          <section class="panel demo">
+            <h2>IIFE configuration</h2>
+            <p class="hint">The settings live inside a function that runs straight away. Only its methods can reach them.</p>
+            <button class="btn" type="button" data-demo="iife">Read the configuration</button>
+            <pre class="output" id="out-iife" aria-live="polite">Press the button to run.</pre>
+          </section>
+
+          <section class="panel demo">
+            <h2>Generator</h2>
+            <p class="hint">Each next() call resumes the generator and gives back the next ID. This demo uses its own DEMO IDs so real student IDs stay in order.</p>
+            <button class="btn" type="button" data-demo="generator">Call next()</button>
+            <pre class="output" id="out-generator" aria-live="polite">Press the button to run.</pre>
+          </section>
+
+          <section class="panel demo">
+            <h2>this, call, apply and bind</h2>
+            <p class="hint">The same function run four ways, each deciding what this points to.</p>
+            <button class="btn" type="button" data-demo="context">Run the comparison</button>
+            <pre class="output" id="out-context" aria-live="polite">Press the button to run.</pre>
+          </section>
+
+          <section class="panel demo">
+            <h2>Asynchronous order</h2>
+            <p class="hint">setTimeout doesn't pause the program. The numbers show the order the messages appear in.</p>
+            <button class="btn" type="button" data-demo="async">Run the timer demo</button>
+            <pre class="output" id="out-async" aria-live="polite">Press the button to run.</pre>
+          </section>
+
+          <section class="panel demo">
+            <h2>Tests</h2>
+            <p class="hint">Normal cases plus awkward input: no marks, one mark, bad marks, wrong types and missing students.</p>
+            <button class="btn btn-primary" type="button" id="btn-run-tests">Run all tests</button>
+            <ul class="tests" id="test-results"></ul>
+          </section>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="toast-stack" id="toast-stack" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
